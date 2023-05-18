@@ -1,5 +1,9 @@
 from __future__ import absolute_import, division, print_function
-import inspect
+
+try:
+    from inspect import getfullargspec as getargspec
+except ImportError:
+    from inspect import getargspec
 
 from ..SCLang.SCLang import *
 
@@ -14,7 +18,7 @@ class _Effect:
         self.lines = []
     def __call__(self, order=0):
         def decorator(effect):
-            effect_data = inspect.getargspec(effect) # Original args and defaults
+            effect_data = getargspec(effect) # Original args and defaults
             
             # Get filename from function name
             filename = "{}.scd".format(effect.__name__)# filename

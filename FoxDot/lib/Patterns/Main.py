@@ -11,7 +11,11 @@ from .Operations import *
 from ..Utils import *
 
 import functools
-import inspect
+
+try:
+    from inspect import getfullargspec as getargspec
+except ImportError:
+    from inspect import getargspec
 
 # Decorator functions for nested expansion of pattern functions and methods
 
@@ -34,7 +38,7 @@ def loop_pattern_func(f):
         for i in range(LCM(*[len(arg) for arg in args if (hasattr(arg, '__len__') and not isinstance(arg, PGroup))])):
             pat |= f(*[(arg[i] if isinstance(arg, Pattern) else arg) for arg in args])
         return pat
-    new_function.argspec = inspect.getargspec(f)
+    new_function.argspec = getargspec(f)
     return new_function
 
 # TODO -- if it isn't looped, return the original if it is a group
@@ -58,7 +62,7 @@ def loop_pattern_method(f):
             pat |= f(self, *[(modi(arg, i) if not isinstance(arg, PGroup) else arg) for arg in args])
         return pat
 
-    new_function.argspec = inspect.getargspec(f)
+    new_function.argspec = getargspec(f)
     return new_function
 
 def PatternMethod(f):
@@ -897,7 +901,7 @@ class metaPattern(object):
     
     def all(self, func=(lambda x: bool(x))):
         """ Returns true if all of the patterns contents satisfies func(x) - default is nonzero """
-        if len(self.data) is 0:
+        if len(self.data) == 0:
             return False
         
         for item in self.data:
@@ -1621,7 +1625,7 @@ def get_avg_if(item1, item2, func = lambda x: x != 0):
     elif isinstance(item2, PGroup):
         result = item2.avg_if(item1, func)
     else:
-        result = avg_if_func(item1, item2, func)
+        result = get_avg_if(item1, item2, func)
     return result
 
 def sum_delays(a, b):

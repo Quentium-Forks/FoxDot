@@ -5,7 +5,10 @@ from .Patterns import Pattern, Cycle, asStream
 from .Utils import modi
 from .TimeVar import var, Pvar
 
-import inspect
+try:
+    from inspect import getfullargspec as getargspec
+except ImportError:
+    from inspect import getargspec
 
 class MethodList:
     """ Class for holding information about the order of which methods have been
@@ -424,7 +427,7 @@ class MethodCall:
 
         # Check if a method has the _beat_ keyword argument
 
-        if "_beat_" in inspect.getargspec(self.method).args:
+        if "_beat_" in getargspec(self.method).args:
 
             self.kwargs["_beat_"] = None
 

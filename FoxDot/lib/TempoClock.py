@@ -65,7 +65,11 @@ from traceback import format_exc as error_stack
 
 import sys
 import threading
-import inspect
+
+try:
+    from inspect import getfullargspec as getargspec
+except ImportError:
+    from inspect import getargspec
 
 class TempoClock(object):
 
@@ -697,7 +701,7 @@ class TempoClock(object):
         return Wrapper(self, obj, dur, args)
 
     def players(self, ex=[]):
-        return [p for p in self.playing if p not in exclude]
+        return [p for p in self.playing if p not in ex]
 
     # Every n beats, do...
 
@@ -765,15 +769,16 @@ class Queue(object):
 
         try:
 
-            function = inspect.getargspec(item)
+            function = getargspec(item)
 
         except TypeError:
 
-            function = inspect.getargspec(item.__call__)
+            function = getargspec(item.__call__)
 
         # If the item can't take arbitrary keywords, check any kwargs are valid
 
-        if function.keywords is None: 
+        # Using varkw since python 3.11 replaced keywords
+        if hasattr(function, 'varkw') and function.varkw is None or hasattr(function, 'keywords') and function.keywords is None:
 
             for key in list(kwargs.keys()):
 
